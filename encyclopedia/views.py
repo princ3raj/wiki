@@ -1,6 +1,9 @@
 from django.shortcuts import render
 import random
 
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+
 from . import util
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -25,8 +28,11 @@ def index(request):
 
 def entry(request,entry_name):
     markdowner = Markdown()
-    entry=util.get_entry(entry_name)
-    html_entry=markdowner.convert(entry)
+    try:
+        entry=util.get_entry(entry_name)
+        html_entry=markdowner.convert(entry)
+    except TypeError:
+        return render(request,"encyclopedia/404.html")
     context={'entry':html_entry,'entry_title':entry_name}
     return render(request,'encyclopedia/entry.html',context)
 
@@ -37,7 +43,12 @@ def newpage(request):
             obj = NameForm()
             obj.title = form.cleaned_data['title']
             obj.content = form.cleaned_data['content']
+            filename = f"entries/{obj.title}.md"
+            if default_storage.exists(filename):
+                return HttpResponseRedirect(reverse("encyclopedia:exist"))
             util.save_entry(obj.title,obj.content)
+                
+
             return HttpResponseRedirect(reverse("encyclopedia:index"))
 
     else:
@@ -70,8 +81,34 @@ def edit(request,entry_title):
             obj = NameForm()
             obj.title = form.cleaned_data['title']
             obj.content = form.cleaned_data['content']
-            util.save_entry(obj.title,obj.content)
+            util.edit_entry(obj.title,obj.content)
             return HttpResponseRedirect(reverse("encyclopedia:index"))
 
     context={'form':form,'entry_title':entry_title}
     return render(request,"encyclopedia/edit.html",context)
+
+
+
+def search(request):        
+    if request.method == 'GET': # this will be GET now     
+        title =  request.GET.get('q') # do some research what it does
+        try:
+            content=util.get_entry(title) 
+            html=converterFactory(content)  
+        except TypeError:
+            return render(request,"encyclopedia/404.html")
+        return render(request,"encyclopedia/search.html",{"content":html})
+    else:
+        return render(request,"encyclopedia/404.html")
+
+
+def converterFactory(mdContent):
+    markdown=Markdown()
+    HtmlContent=markdown.convert(mdContent)
+    return HtmlContent
+
+
+def exist(request):
+    return render(request,"encyclopedia/exist.html")
+
+

@@ -13,6 +13,8 @@ urlpatterns = [
     path('<str:entry_name>/', views.entry, name='entry'),
     path('random',views.randomfunction,name="random"),
     path('edit/<str:entry_title>/',views.edit,name="edit"),
+    path('search',views.search,name="search"),
+    path("exist",views.exist,name="exist"),
   
 
 ]
