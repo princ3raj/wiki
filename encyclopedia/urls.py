@@ -12,7 +12,7 @@ urlpatterns = [
     # Detail page for a single topic. 
     path('<str:entry_name>/', views.entry, name='entry'),
     path('random',views.randomfunction,name="random"),
-    path('edit',views.edit,name="edit"),
+    path('edit/<str:entry_title>/',views.edit,name="edit"),
   
 
 ]

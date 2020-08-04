@@ -14,7 +14,7 @@ from markdown2 import Markdown
 
 class NameForm(forms.Form):
     title = forms.CharField(label='Title', max_length=100)
-    content = forms.CharField(label='Content')
+    content = forms.CharField(widget=forms.Textarea,label='Content')
 
 def index(request):
     """The Home Page for topic names"""
@@ -27,7 +27,7 @@ def entry(request,entry_name):
     markdowner = Markdown()
     entry=util.get_entry(entry_name)
     html_entry=markdowner.convert(entry)
-    context={'entry':html_entry}
+    context={'entry':html_entry,'entry_title':entry_name}
     return render(request,'encyclopedia/entry.html',context)
 
 def newpage(request):
@@ -59,5 +59,19 @@ def randomfunction(request):
     return render(request,"encyclopedia/random.html",context)
 
 
-def edit(request):
-    return render(request,"encyclopedia/edit.html")
+def edit(request,entry_title):
+    form=NameForm()
+    if request.method !='POST':
+            #Initial request; pre-filled form with the current entry
+            form=NameForm({'title':entry_title,'content':util.get_entry(entry_title)})
+    else:
+        form = NameForm(request.POST)
+        if form.is_valid():
+            obj = NameForm()
+            obj.title = form.cleaned_data['title']
+            obj.content = form.cleaned_data['content']
+            util.save_entry(obj.title,obj.content)
+            return HttpResponseRedirect(reverse("encyclopedia:index"))
+
+    context={'form':form,'entry_title':entry_title}
+    return render(request,"encyclopedia/edit.html",context)

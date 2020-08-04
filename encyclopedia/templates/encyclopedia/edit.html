@@ -1,16 +1,24 @@
 {% extends "encyclopedia/layout.html" %}
+{% load bootstrap4 %}
 
 {% block title %}
     Encyclopedia
 {% endblock %}
 
 {% block body %}
-    <h1>All Pages</h1>
+  <div>
+        <form method="post" class="form">
+            {% csrf_token %}
+     
+        {% bootstrap_form form %}
 
-    <ul>
-        {% for entry in entries %}
-           <li><a href="{% url 'encyclopedia:index'%}{{entry}}/">{{ entry }}</a></li>
-        {% endfor %}
-    </ul>
+       
+           {% buttons %}
+           <button name="submit" class="btn btn-primary">Save Changes</button>
+       {% endbuttons%}
+            
+        </form>
+   </div>
+   
 
 {% endblock %}
