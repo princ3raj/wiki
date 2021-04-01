@@ -1,4 +1,4 @@
-# wiki : A Project based on Web programming with python and javascript course offered by Harvard CS50
+# wiki : A Project based on Wikipedia
 
 ###watch the video:- [Click to view](https://youtu.be/pD0dyQyT8fo)
 
